@@ -1,0 +1,22 @@
+generate_captions:
+    abs_path_to_objects: "/path/to/objects"
+    output_dir: "captioning_pipeline/captions"
+    model_name: "blip2_t5"
+    model_type: "pretrain_flant5xl"
+    use_qa: prompt: "Question: what object is in this image? Answer:"
+    full_prompt: "Question: what is the structure and geometry of this <object>?"
+    use_nucleus_sampling: num_captions: 4
+
+clean_captions:
+    abs_path_to_objects: "/path/to/objects"
+    abs_path_to_captions: "/path/to/captions"
+    path_to_final_captions: "captioning_pipeline/final_captions.json"
+    openai_api_key: "YOUR_API_KEY"
+    gpt_type: "gpt-4o"
+    max_retries: 2
+    gpt_timeout: 60
+    gpt_read_timeout: 5.0
+    gpt_write_timeout: 20.0
+    gpt_connect_timeout: 2.0
+    clip_model_name: "ViT-B/32"
+    prompt: "Given a set of descriptions about the same 3D object, distill these descriptions into one concise caption. The descriptions are as follows: <descriptions>. Avoid describing background, surface, and posture. The caption should be:"
