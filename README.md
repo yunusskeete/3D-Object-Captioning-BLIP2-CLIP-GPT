@@ -20,6 +20,11 @@ For example, include the following `"... Avoid making reference to a 3D model - 
 
 Usage guides on the [caption generation](generate_captions.py) and [caption refinement](clean_captions.py) stages, view their respective module docstrings.
 
+## To-Do
+- [ ] Implement file name as captioning guideline for GPT
+- [ ] Add Logging
+- [ ] Containerise
+
 ## Acknowledgments
 This work is heavily based on [Scalable 3D Captioning with Pretrained Models](https://arxiv.org/abs//2306.07279):
 * <a href="https://cap3d-um.github.io/"><img src="https://img.shields.io/static/v1?label=Project&message=Website&color=red" height=20.5></a>
