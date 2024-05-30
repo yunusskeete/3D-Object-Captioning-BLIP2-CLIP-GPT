@@ -85,6 +85,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--path_to_final_captions", type=str, default="final_captions.json"
     )
+    parser.add_argument("--filter_duplicate_captions", action="store_true")
     parser.add_argument(
         "--openai_api_key", type=str, default=os.environ["OPENAI_API_KEY"]
     )
@@ -220,6 +221,7 @@ def clean_captions_for_all_objects(
     Dict[str, str]
         A dictionary mapping object names to their final cleaned captions.
     """
+    filter_duplicate_captions: bool = kwargs.get("filter_duplicate_captions")
 
     final_captions: Dict[str, str] = {}
 
@@ -248,6 +250,7 @@ def clean_captions_for_all_objects(
         final_caption: str = clean_object_captions(
             object_captions=object_captions,
             object_renderings_views_Paths=object_renderings_views_Paths,
+            # filter_duplicate_captions=filter_duplicate_captions,
             **kwargs,
         )
 
@@ -260,7 +263,10 @@ def clean_captions_for_all_objects(
 
 
 def clean_object_captions(
-    object_captions: Dict[str, List[str]], object_renderings_views_Paths: Path, **kwargs
+    object_captions: Dict[str, List[str]],
+    object_renderings_views_Paths: Path,
+    filter_duplicate_captions: bool = False,
+    **kwargs,
 ) -> str:
     """
     Cleans and refines captions for a single object by selecting the best caption per view
@@ -272,6 +278,8 @@ def clean_object_captions(
         A dictionary mapping view names to a list of captions for that view.
     object_renderings_views_Paths : Path
         Paths to the rendering views for the object.
+    filter_duplicate_captions: bool
+        Flag to filter duplicate captions. Note: filtering unique captions depreferences the modal description when summarised with GPT. Defaults to False.
     kwargs : dict
         Additional keyword arguments including device, model, preprocess, and cosine similarity.
 
@@ -311,21 +319,21 @@ def clean_object_captions(
         best_caption_for_this_view: str = view_captions[max_index]
         object_best_captions_per_view.append(best_caption_for_this_view)
 
-    unique_captions: List[str] = list(
-        set(caption for caption in object_best_captions_per_view if caption)
+    captions: List[str] = (
+        object_best_captions_per_view
+        if not filter_duplicate_captions
+        else list(set(caption for caption in object_best_captions_per_view if caption))
     )
-    # print("unique_captions:", unique_captions)
+    # print("captions:", captions)
 
     final_caption: str
-    match len(unique_captions):
+    match len(captions):
         case 0:
             final_caption = ""
         case 1:
             final_caption = ""
         case _:
-            final_caption = summarize_captions_gpt(
-                descriptions=unique_captions, **kwargs
-            )
+            final_caption = summarize_captions_gpt(descriptions=captions, **kwargs)
     print("final_caption:", final_caption)
 
     return final_caption
